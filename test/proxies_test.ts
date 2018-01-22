@@ -1,6 +1,6 @@
-const assert = require('assert')
-const Automerge = require('../src/Automerge')
-const { equalsOneOf } = require('./helpers')
+import * as assert from 'assert'
+import Automerge from '../src/automerge'
+import { equalsOneOf } from './helpers'
 
 describe('Automerge proxy API', () => {
   describe('root object', () => {

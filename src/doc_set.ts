@@ -1,11 +1,14 @@
-const { Map, Set } = require('immutable')
-const uuid = require('uuid/v4')
-const FreezeAPI = require('./freeze_api')
+import { Map, Set } from 'immutable'
+import * as uuid from 'uuid/v4'
+import FreezeAPI from './freeze_api'
 
-class DocSet {
+export default class DocSet {
+  private docs
+  private handlers
+  
   constructor () {
     this.docs = Map()
-    this.handlers = Set()
+    this.handlers = Set<Function>()
   }
 
   get docIds () {
@@ -36,5 +39,3 @@ class DocSet {
     this.handlers = this.handlers.remove(handler)
   }
 }
-
-module.exports = DocSet

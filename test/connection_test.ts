@@ -1,8 +1,8 @@
-const assert = require('assert')
-const sinon = require('sinon')
-const Automerge = require('../src/Automerge')
-const Connection = Automerge.Connection
-const DocSet = Automerge.DocSet
+import * as assert from 'assert'
+import * as sinon from 'sinon'
+import Automerge from '../src/automerge'
+import Connection from '../src/connection';
+import DocSet from '../src/doc_set';
 
 describe('Automerge.Connection', () => {
   var doc1, nodes

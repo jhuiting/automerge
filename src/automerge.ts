@@ -1,10 +1,11 @@
-const { Map, List, fromJS } = require('immutable')
-const uuid = require('uuid/v4')
-const { rootObjectProxy } = require('./proxies')
-const OpSet = require('./op_set')
-const FreezeAPI = require('./freeze_api')
-const { Text } = require('./text')
+import { Map, List, Set, fromJS } from 'immutable';
+import * as uuid from "uuid/v4";
 const transit = require('transit-immutable-js')
+
+import { rootObjectProxy } from './proxies'
+import * as OpSet from './op_set'
+import FreezeAPI from './freeze_api'
+import { Text } from './text'
 
 function isObject(obj) {
   return typeof obj === 'object' && obj !== null
@@ -123,11 +124,11 @@ function makeChange(root, newState, message) {
 
 ///// Automerge.* API
 
-function init(actorId) {
+function init(actorId?: string) {
   return FreezeAPI.init(actorId || uuid())
 }
 
-function checkTarget(funcName, target, needMutable) {
+function checkTarget(funcName, target, needMutable?: boolean) {
   if (!target || !target._state || !target._objectId ||
       !target._state.hasIn(['opSet', 'byObject', target._objectId])) {
     throw new TypeError('The first argument to Automerge.' + funcName +
@@ -149,7 +150,7 @@ function parseListIndex(key) {
   return key
 }
 
-function change(doc, message, callback) {
+function change(doc, message: string | Function, callback?: Function) {
   checkTarget('change', doc)
   if (doc._objectId !== '00000000-0000-0000-0000-000000000000') {
     throw new TypeError('The first argument to Automerge.change must be the document root')
@@ -292,7 +293,7 @@ function getMissingDeps(doc) {
   return OpSet.getMissingDeps(doc._state.get('opSet'))
 }
 
-module.exports = {
+export default {
   init, change, merge, diff, assign, load, save, equals, inspect, getHistory,
   getChanges, getChangesForActor, applyChanges, getMissingDeps, Text,
   DocSet: require('./doc_set'),

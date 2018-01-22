@@ -1,6 +1,17 @@
-const { Map, List, Set } = require('immutable')
-const { SkipList } = require('./skip_list')
+import { Map, List, Set } from 'immutable'
+import SkipList from './skip_list'
 const ROOT_ID = '00000000-0000-0000-0000-000000000000'
+
+type Edit = {
+  action: string,
+  key?: string,
+  index?: string,
+  obj: string,
+  type?: string,
+  link?: boolean,
+  value?: boolean,
+  conflicts?: any[]
+}
 
 // Returns true if the two operations are concurrent, that is, they happened without being aware of
 // each other (neither happened before the other). Returns false if one supersedes the other.
@@ -41,7 +52,7 @@ function applyMake(opSet, op) {
   const objectId = op.get('obj')
   if (opSet.hasIn(['byObject', objectId])) throw 'Duplicate creation of object ' + objectId
 
-  let edit = {action: 'create', obj: objectId}
+  let edit: Edit = {action: 'create', obj: objectId}
   let object = Map({_init: op, _inbound: Set()})
   if (op.get('action') === 'makeMap') {
     edit.type = 'map'
@@ -72,7 +83,7 @@ function applyInsert(opSet, op) {
 function getConflicts(ops) {
   const conflicts = []
   for (let op of ops.shift()) {
-    let conflict = {actor: op.get('actor'), value: op.get('value')}
+    let conflict: {actor: string, link?: boolean, value: string} = {actor: op.get('actor'), value: op.get('value')}
     if (op.get('action') === 'link') conflict.link = true
     conflicts.push(conflict)
   }
@@ -84,7 +95,7 @@ function patchList(opSet, objectId, index, action, ops) {
   const firstOp = ops ? ops.first() : null
   let elemIds = opSet.getIn(['byObject', objectId, '_elemIds'])
   let value = firstOp ? firstOp.get('value') : null
-  let edit = {action, type: (objType === 'makeText') ? 'text' : 'list', obj: objectId, index}
+  let edit: Edit = {action, type: (objType === 'makeText') ? 'text' : 'list', obj: objectId, index}
   if (firstOp && firstOp.get('action') === 'link') {
     edit.link = true
     value = {obj: firstOp.get('value')}
@@ -136,7 +147,7 @@ function updateListElement(opSet, objectId, elemId) {
 
 function updateMapKey(opSet, objectId, key) {
   const ops = getFieldOps(opSet, objectId, key)
-  let edit = {action: '', type: 'map', obj: objectId, key}
+  let edit: Edit = {action: '', type: 'map', obj: objectId, key}
 
   if (ops.isEmpty()) {
     edit.action = 'remove'
@@ -283,9 +294,7 @@ function getMissingChanges(opSet, haveDeps) {
     .map(state => state.get('change'))
 }
 
-function getChangesForActor(opSet, forActor, afterSeq) {
-  afterSeq = afterSeq || 0
-
+function getChangesForActor(opSet, forActor, afterSeq = 0) {
   return opSet.get('states')
     .filter((states, actor) => actor === forActor)
     .map((states, actor) => states.skip(afterSeq))
@@ -326,8 +335,8 @@ function lamportCompare(op1, op2) {
   return 0
 }
 
-function insertionsAfter(opSet, objectId, parentId, childId) {
-  const match = /^(.*):(\d+)$/.exec(childId || '')
+function insertionsAfter(opSet, objectId, parentId, childId = '') {
+  const match = /^(.*):(\d+)$/.exec(childId)
   const childKey = match ? Map({actor: match[1], elem: parseInt(match[2])}) : null
 
   return opSet
@@ -425,7 +434,7 @@ function listLength(opSet, objectId) {
   return opSet.getIn(['byObject', objectId, '_elemIds']).length
 }
 
-function listIterator(opSet, listId, mode, context) {
+function listIterator(opSet, listId, mode, context): any {
   let elem = '_head', index = -1
   const next = () => {
     while (elem) {
@@ -458,7 +467,7 @@ function listIterator(opSet, listId, mode, context) {
   return iterator
 }
 
-module.exports = {
+export {
   init, addLocalOp, addChange, getMissingChanges, getChangesForActor, getMissingDeps,
   getObjectFields, getObjectField, getObjectConflicts,
   listElemByIndex, listLength, listIterator, ROOT_ID

@@ -1,6 +1,6 @@
-const { Map, List, Set } = require('immutable')
-const OpSet = require('./op_set')
-const { Text } = require('./text')
+import { Map, List, Set } from 'immutable'
+import { getObjectFields, getObjectConflicts, getObjectField, listIterator, init  as initOpSet, ROOT_ID, addChange} from'./op_set'
+import { Text } from './text'
 
 function isObject(obj) {
   return typeof obj === 'object' && obj !== null
@@ -155,14 +155,14 @@ function updateCache(opSet, diffs) {
 
   // Update cache entries on the path from the root to the modified object
   while (!affected.isEmpty()) {
-    const parentOps = affected.flatMap(objectId => opSet.getIn(['byObject', objectId, '_inbound'], Set()))
+    const parentOps:any = affected.flatMap(objectId => opSet.getIn(['byObject', objectId, '_inbound'], Set()))
     affected = Set()
     for (let ref of parentOps) {
       affected = affected.add(ref.get('obj'))
       const objType = opSet.getIn(['byObject', ref.get('obj'), '_init', 'action'])
       if (objType === 'makeList') {
         opSet = parentListObject(opSet, ref)
-      } else if (objType === 'makeMap' || ref.get('obj') === OpSet.ROOT_ID) {
+      } else if (objType === 'makeMap' || ref.get('obj') === ROOT_ID) {
         opSet = parentMapObject(opSet, ref)
       } else if (objType === 'makeText') {
         opSet = opSet.setIn(['cache', ref.get('obj')], new Text(opSet, ref.get('obj')))
@@ -175,7 +175,7 @@ function updateCache(opSet, diffs) {
 }
 
 function instantiateImmutable(opSet, objectId) {
-  const isRoot = (objectId === OpSet.ROOT_ID)
+  const isRoot = (objectId === ROOT_ID)
   const objType = opSet.getIn(['byObject', objectId, '_init', 'action'])
 
   // Don't read the root object from cache, because it may reference an outdated state.
@@ -188,15 +188,15 @@ function instantiateImmutable(opSet, objectId) {
 
   let obj
   if (isRoot || objType === 'makeMap') {
-    const conflicts = OpSet.getObjectConflicts(opSet, objectId, this)
+    const conflicts = getObjectConflicts(opSet, objectId, this)
     obj = Object.create({_conflicts: Object.freeze(conflicts.toJS())})
 
-    for (let field of OpSet.getObjectFields(opSet, objectId)) {
-      obj[field] = OpSet.getObjectField(opSet, objectId, field, this)
+    for (let field of getObjectFields(opSet, objectId)) {
+      obj[field] = getObjectField(opSet, objectId, field, this)
     }
   } else if (objType === 'makeList') {
-    obj = [...OpSet.listIterator(opSet, objectId, 'values', this)]
-    const conflicts = List(OpSet.listIterator(opSet, objectId, 'conflicts', this)).toJS()
+    obj = [...listIterator(opSet, objectId, 'values', this)]
+    const conflicts = List(listIterator(opSet, objectId, 'conflicts', this)).toJS()
     Object.defineProperty(obj, '_objectId',  {value: objectId})
     Object.defineProperty(obj, '_conflicts', {value: Object.freeze(conflicts)})
   } else if (objType === 'makeText') {
@@ -213,7 +213,7 @@ function instantiateImmutable(opSet, objectId) {
 function materialize(opSet) {
   opSet = opSet.set('cache', Map())
   const context = {instantiateObject: instantiateImmutable, cache: {}}
-  const snapshot = context.instantiateObject(opSet, OpSet.ROOT_ID)
+  const snapshot = context.instantiateObject(opSet, ROOT_ID)
   return [opSet.set('cache', Map(context.cache)), snapshot]
 }
 
@@ -224,7 +224,7 @@ function rootObject(state, rootObj) {
 }
 
 function init(actorId) {
-  const [opSet, rootObj] = materialize(OpSet.init())
+  const [opSet, rootObj] = materialize(initOpSet())
   const state = Map({actorId, opSet})
   return rootObject(state, rootObj)
 }
@@ -232,14 +232,14 @@ function init(actorId) {
 function applyChanges(root, changes, incremental) {
   let opSet = root._state.get('opSet'), diffs = [], diff
   for (let change of changes) {
-    [opSet, diff] = OpSet.addChange(opSet, change)
+    [opSet, diff] = addChange(opSet, change)
     diffs.push(...diff)
   }
 
   let newRoot
   if (incremental) {
     opSet = updateCache(opSet, diffs)
-    newRoot = opSet.getIn(['cache', OpSet.ROOT_ID])
+    newRoot = opSet.getIn(['cache', ROOT_ID])
     if (newRoot === root) {
       newRoot = Object.assign(Object.create({_conflicts: root._conflicts}), root)
     }
@@ -249,6 +249,6 @@ function applyChanges(root, changes, incremental) {
   return rootObject(root._state.set('opSet', opSet), newRoot)
 }
 
-module.exports = {
+export default {
   init, applyChanges
 }

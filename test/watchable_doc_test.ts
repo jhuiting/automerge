@@ -1,7 +1,8 @@
-const assert = require('assert')
-const sinon = require('sinon')
-const Automerge = require('../src/Automerge')
-const WatchableDoc = Automerge.WatchableDoc
+import * as assert from 'assert'
+import * as sinon from 'sinon'
+import Automerge from '../src/automerge'
+import { equalsOneOf } from './helpers'
+import WatchableDoc from "../src/watchable_doc"
 
 describe('Automerge.WatchableDoc', () => {
   let watchDoc, beforeDoc, afterDoc, changes

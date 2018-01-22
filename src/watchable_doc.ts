@@ -1,11 +1,15 @@
-const { Map, Set, fromJS } = require('immutable')
-const uuid = require('uuid/v4')
-const FreezeAPI = require('./freeze_api')
+import { Map, Set, fromJS } from 'immutable'
+import * as  uuid from 'uuid/v4';
 
-class WatchableDoc {
+import FreezeAPI from './freeze_api'
+
+export default class WatchableDoc {
+  public handlers;
+  public doc
+
   constructor (doc) {
-    this.doc = doc
-    this.handlers = Set()
+    this.doc = doc;
+    this.handlers = Set<Function>();
   }
 
   get () {
@@ -32,5 +36,3 @@ class WatchableDoc {
     this.handlers = this.handlers.remove(handler)
   }
 }
-
-module.exports = WatchableDoc

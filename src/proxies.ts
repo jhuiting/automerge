@@ -1,5 +1,5 @@
-const { List, fromJS } = require('immutable')
-const OpSet = require('./op_set')
+import { List, fromJS } from 'immutable'
+import * as  OpSet from './op_set'
 
 function listImmutable(attempt) {
   throw new TypeError('You tried to ' + attempt + ', but this list is read-only. ' +
@@ -227,4 +227,4 @@ function rootObjectProxy(context) {
   return mapProxy(context, '00000000-0000-0000-0000-000000000000')
 }
 
-module.exports = { rootObjectProxy }
+export{ rootObjectProxy }

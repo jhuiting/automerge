@@ -1,7 +1,13 @@
-const { SkipList } = require('./skip_list')
+import * as OpSet from './op_set';
+import SkipList from './skip_list';
 
-class Text {
-  constructor (opSet, objectId) {
+export class Text {
+  objectId: any;
+  opSet: any;
+  
+  constructor (opSet?: any, objectId?: string) {
+    this.opSet = opSet
+    this.objectId = objectId
     return makeInstance(opSet, objectId)
   }
 
@@ -47,5 +53,3 @@ function makeInstance(opSet, objectId) {
   instance.objectId = objectId
   return Object.freeze(instance)
 }
-
-module.exports = {Text}

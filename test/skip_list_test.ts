@@ -1,6 +1,6 @@
-const assert = require('assert')
+import * as assert from 'assert'
 const jsc = require('jsverify')
-const { SkipList } = require('../src/skip_list')
+import SkipList from '../src/skip_list'
 
 function iter(array) {
   return array[Symbol.iterator].bind(array)

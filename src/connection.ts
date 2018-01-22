@@ -1,6 +1,9 @@
-const { Map, fromJS } = require('immutable')
-const OpSet = require('./op_set')
+import { Map, fromJS } from 'immutable';
 
+import DocSet from "./doc_set";
+import { getMissingChanges } from './op_set';
+
+// Returns true if all components of
 // Returns true if all components of clock1 are less than or equal to those of clock2.
 // Returns false if there is at least one component in which clock1 is greater than clock2
 // (that is, either clock1 is overall greater than clock2, or the clocks are incomparable).
@@ -37,7 +40,13 @@ function clockUnion(clockMap, docId, clock) {
 //
 // ourClock is the most recent VClock that we've advertised to the peer (i.e. where we've
 // told the peer that we have it).
-class Connection {
+export default class Connection {
+  private _docSet: any;
+  private _sendMsg: any;
+  private _theirClock
+  private _ourClock
+  private _docChangedHandler
+
   constructor (docSet, sendMsg) {
     this._docSet = docSet
     this._sendMsg = sendMsg
@@ -55,8 +64,8 @@ class Connection {
     this._docSet.unregisterHandler(this._docChangedHandler)
   }
 
-  sendMsg (docId, clock, changes) {
-    const msg = {docId, clock: clock.toJS()}
+  sendMsg (docId, clock, changes?: any) {
+    const msg: {docId: string, clock: any, changes?: any} = {docId, clock: clock.toJS()}
     this._ourClock = clockUnion(this._ourClock, docId, clock)
     if (changes) msg.changes = changes.toJS()
     this._sendMsg(msg)
@@ -67,7 +76,7 @@ class Connection {
     const clock = doc._state.getIn(['opSet', 'clock'])
 
     if (this._theirClock.has(docId)) {
-      const changes = OpSet.getMissingChanges(doc._state.get('opSet'), this._theirClock.get(docId))
+      const changes = getMissingChanges(doc._state.get('opSet'), this._theirClock.get(docId))
       if (!changes.isEmpty()) {
         this._theirClock = clockUnion(this._theirClock, docId, clock)
         this.sendMsg(docId, clock, changes)
@@ -112,5 +121,3 @@ class Connection {
     return this._docSet.getDoc(msg.docId)
   }
 }
-
-module.exports = Connection

@@ -1,4 +1,4 @@
-const { Map } = require('immutable')
+import { Map } from 'immutable'
 
 // Returns a random number from the geometric distribution with p = 0.75.
 // That is, returns k with probability p * (1 - p)^(k - 1).
@@ -14,6 +14,14 @@ function* randomLevel() {
 }
 
 class Node {
+  level: any;
+  value: any;
+  key: any;
+  prevKey;
+  nextKey;
+  nextCount;
+  prevCount;
+
   constructor (key, value, level, prevKey, nextKey, prevCount, nextCount) {
     this.key = key
     this.value = value
@@ -104,8 +112,12 @@ class Node {
   }
 }
 
-class SkipList {
-  constructor (randomSource) {
+export default class SkipList {
+  _nodes;
+  _randomSource;
+  length: number;
+  
+  constructor (randomSource?: Function) {
     const head = new Node(null, null, 1, [], [null], [], [null])
     const random = randomSource ? randomSource() : randomLevel()
     return makeInstance(0, Map().set(null, head), random)
@@ -323,5 +335,3 @@ function makeInstance(length, nodes, randomSource) {
   instance._randomSource = randomSource
   return Object.freeze(instance)
 }
-
-module.exports = {SkipList}
