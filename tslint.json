@@ -1,0 +1,159 @@
+{
+  "rules": {
+    "align": [
+      true,
+      "parameters",
+      "statements"
+    ],
+    "ban": [
+      true,
+      {
+        "name": ["chai", "assert", "equal"],
+        "message": "Use 'strictEqual' instead."
+      },
+      {
+        "name": ["assert", "equal"],
+        "message": "Use 'strictEqual' instead."
+      },
+      {
+        "name": ["chai", "assert", "notEqual"],
+        "message": "Use 'notStrictEqual' instead."
+      },
+      {
+        "name": ["assert", "notEqual"],
+        "message": "Use 'notStrictEqual' instead."
+      }
+    ],
+    "class-name": true,
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "curly": false,
+    "eofline": true,
+    "forin": false,
+    "indent": [
+      true,
+      "spaces"
+    ],
+    "interface-name": true,
+    "jsdoc-format": true,
+    "label-position": true,
+    "max-line-length": [
+      true,
+      140
+    ],
+    "member-access": [true, "no-public"],
+    "member-ordering": [
+      false
+    ],
+    "mocha-avoid-only": true,
+    "mocha-unneeded-done": true,
+    "no-angle-bracket-type-assertion": true,
+    "no-any": false,
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-conditional-assignment": true,
+    "no-consecutive-blank-lines": true,
+    "no-console": false,
+    "no-construct": true,
+    "no-debugger": true,
+    "no-default-export": false,
+    "no-duplicate-variable": true,
+    "no-duplicate-switch-case": true,
+    "no-duplicate-imports": true,
+    "no-empty": true,
+    "no-eval": true,
+    "no-floating-promises": [true, "PromiseLike"],
+    "no-implicit-dependencies": [true, "dev"],
+    "no-inferrable-types": false,
+    "no-internal-module": true,
+    "no-null-keyword": false,
+    "no-require-imports": false,
+    "no-shadowed-variable": false,
+    "no-unnecessary-type-assertion": true,
+    "no-return-await": true,
+    "no-string-literal": false,
+    "no-submodule-imports": [true, "rest"],
+    "no-switch-case-fall-through": false,
+    "no-trailing-whitespace": true,
+    "no-typeof-undefined": true,
+    "no-unused-expression": true,
+    "no-unused-variable": [
+      true,
+      "react"
+    ],
+    "no-use-before-declare": false,
+    "no-useless-files": true,
+    "no-var-keyword": true,
+    "no-var-requires": false,
+    "object-literal-sort-keys": false,
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-catch",
+      "check-else",
+      "check-finally",
+      "check-whitespace"
+    ],
+    "prefer-const": true,
+    "promise-function-async": true,
+    "promise-must-complete": true,
+    "quotemark": [
+      true,
+      "single",
+      "jsx-double",
+      "avoid-escape"
+    ],
+    "radix": true,
+    "semicolon": [true, "never"],
+    "switch-default": false,
+    "trailing-comma": [
+      true,
+      {
+        "multiline": "never",
+        "singleline": "never"
+      }
+    ],
+    "triple-equals": true,
+    "typedef": [
+      true,
+      "property-declaration",
+      "member-variable-declaration"
+    ],
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      },
+      {
+        "call-signature": "space",
+        "index-signature": "space",
+        "parameter": "space",
+        "property-declaration": "space",
+        "variable-declaration": "space"
+      }
+    ],
+    "variable-name": [
+      true,
+      "check-format",
+      "allow-leading-underscore",
+      "ban-keywords"
+    ],
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-operator",
+      "check-module",
+      "check-separator",
+      "check-type",
+      "check-typecast"
+    ]
+  },
+  "rulesDirectory": "node_modules/tslint-microsoft-contrib"
+}

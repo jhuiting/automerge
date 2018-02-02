@@ -15,7 +15,7 @@ type Edit = {
 
 // Returns true if the two operations are concurrent, that is, they happened without being aware of
 // each other (neither happened before the other). Returns false if one supersedes the other.
-function isConcurrent(opSet, op1, op2) {
+function isConcurrent(opSet: OpSet, op1, op2) {
   const [actor1, seq1] = [op1.get('actor'), op1.get('seq')]
   const [actor2, seq2] = [op2.get('actor'), op2.get('seq')]
   if (!actor1 || !actor2 || !seq1 || !seq2) return false
@@ -28,7 +28,7 @@ function isConcurrent(opSet, op1, op2) {
 
 // Returns true if all changes that causally precede the given change
 // have already been applied in `opSet`.
-function causallyReady(opSet, change) {
+function causallyReady(opSet: OpSet, change) {
   const actor = change.get('actor'), seq = change.get('seq')
   let satisfied = true
   change.get('deps').set(actor, seq - 1).forEach((depSeq, depActor) => {
@@ -37,7 +37,7 @@ function causallyReady(opSet, change) {
   return satisfied
 }
 
-function transitiveDeps(opSet, baseDeps) {
+function transitiveDeps(opSet: OpSet, baseDeps) {
   return baseDeps.reduce((deps, depSeq, depActor) => {
     if (depSeq <= 0) return deps
     const transitive = opSet.getIn(['states', depActor, depSeq - 1, 'allDeps'])
@@ -52,7 +52,7 @@ function applyMake(opSet, op) {
   const objectId = op.get('obj')
   if (opSet.hasIn(['byObject', objectId])) throw 'Duplicate creation of object ' + objectId
 
-  let edit: Edit = {action: 'create', obj: objectId}
+  const edit: Edit = {action: 'create', obj: objectId}
   let object = Map({_init: op, _inbound: Set()})
   if (op.get('action') === 'makeMap') {
     edit.type = 'map'
@@ -82,20 +82,20 @@ function applyInsert(opSet, op) {
 
 function getConflicts(ops) {
   const conflicts = []
-  for (let op of ops.shift()) {
-    let conflict: {actor: string, link?: boolean, value: string} = {actor: op.get('actor'), value: op.get('value')}
+  for (const op of ops.shift()) {
+    const conflict: {actor: string, link?: boolean, value: string} = {actor: op.get('actor'), value: op.get('value')}
     if (op.get('action') === 'link') conflict.link = true
     conflicts.push(conflict)
   }
   return conflicts
 }
 
-function patchList(opSet, objectId, index, action, ops) {
+function patchList(opSet: OpSet, objectId, index, action, ops) {
   const objType = opSet.getIn(['byObject', objectId, '_init', 'action'])
   const firstOp = ops ? ops.first() : null
   let elemIds = opSet.getIn(['byObject', objectId, '_elemIds'])
   let value = firstOp ? firstOp.get('value') : null
-  let edit: Edit = {action, type: (objType === 'makeText') ? 'text' : 'list', obj: objectId, index}
+  const edit: Edit = {action, type: (objType === 'makeText') ? 'text' : 'list', obj: objectId, index}
   if (firstOp && firstOp.get('action') === 'link') {
     edit.link = true
     value = {obj: firstOp.get('value')}
@@ -145,9 +145,9 @@ function updateListElement(opSet, objectId, elemId) {
   }
 }
 
-function updateMapKey(opSet, objectId, key) {
+function updateMapKey(opSet: OpSet, objectId, key) {
   const ops = getFieldOps(opSet, objectId, key)
-  let edit: Edit = {action: '', type: 'map', obj: objectId, key}
+  const edit: Edit = {action: '', type: 'map', obj: objectId, key}
 
   if (ops.isEmpty()) {
     edit.action = 'remove'
@@ -164,7 +164,7 @@ function updateMapKey(opSet, objectId, key) {
 }
 
 // Processes a 'set', 'del', or 'link' operation
-function applyAssign(opSet, op) {
+function applyAssign(opSet: OpSet, op) {
   const objectId = op.get('obj')
   const objType = opSet.getIn(['byObject', objectId, '_init', 'action'])
   if (!opSet.get('byObject').has(objectId)) throw 'Modification of unknown object ' + objectId
@@ -172,11 +172,11 @@ function applyAssign(opSet, op) {
   const priorOpsConcurrent = opSet
     .getIn(['byObject', objectId, op.get('key')], List())
     .groupBy(other => !!isConcurrent(opSet, other, op))
-  let overwritten = priorOpsConcurrent.get(false, List())
+  const overwritten = priorOpsConcurrent.get(false, List())
   let remaining   = priorOpsConcurrent.get(true,  List())
 
   // If any links were overwritten, remove them from the index of inbound links
-  for (let op of overwritten.filter(op => op.get('action') === 'link')) {
+  for (const op of overwritten.filter(op => op.get('action') === 'link')) {
     opSet = opSet.updateIn(['byObject', op.get('value'), '_inbound'], ops => ops.remove(op))
   }
 
@@ -209,7 +209,7 @@ function applyOp(opSet, op) {
   }
 }
 
-function applyChange(opSet, change) {
+function applyChange(opSet: OpSet, change): any {
   const actor = change.get('actor'), seq = change.get('seq')
   const prior = opSet.getIn(['states', actor], List())
   if (seq <= prior.size) {
@@ -222,8 +222,9 @@ function applyChange(opSet, change) {
   const allDeps = transitiveDeps(opSet, change.get('deps').set(actor, seq - 1))
   opSet = opSet.setIn(['states', actor], prior.push(Map({change, allDeps})))
 
-  let diff, diffs = []
-  for (let op of change.get('ops')) {
+  let diff
+  const diffs = []
+  for (const op of change.get('ops')) {
     [opSet, diff] = applyOp(opSet, op.merge({actor, seq}))
     diffs.push(...diff)
   }
@@ -239,10 +240,11 @@ function applyChange(opSet, change) {
   return [opSet, diffs]
 }
 
-function applyQueuedOps(opSet) {
-  let queue = List(), diff, diffs = []
+function applyQueuedOps(opSet: OpSet) {
+  let queue = List(), diff
+  const diffs = []
   while (true) {
-    for (let change of opSet.get('queue')) {
+    for (const change of opSet.get('queue')) {
       if (causallyReady(opSet, change)) {
         [opSet, diff] = applyChange(opSet, change)
         diffs.push(...diff)
@@ -257,8 +259,11 @@ function applyQueuedOps(opSet) {
   }
 }
 
-function init() {
-  return Map()
+type OpSet = Map<Operations, any>
+type Operations =  'states' | 'history' | 'byObject' | 'clock' | 'deps' | 'local' | 'queue'
+
+function init(): OpSet {
+  return Map<Operations, any>()
     .set('states',   Map())
     .set('history',  List())
     .set('byObject', Map().set(ROOT_ID, Map()))
@@ -268,26 +273,27 @@ function init() {
     .set('queue',    List())
 }
 
-function addLocalOp(opSet, op, actor) {
+function addLocalOp(opSet: OpSet, op, actor) {
   const objectId = op.get('obj'), action = op.get('action'), key = op.get('key')
   let ops = opSet.get('local')
 
   // Override any prior assignment operations for the same object and key
   if (action === 'set' || action === 'del' || action === 'link') {
-    ops = ops.filter(prev => prev.get('obj') != objectId || prev.get('key') != key)
+    ops = ops.filter(prev => prev.get('obj') !== objectId || prev.get('key') !== key)
   }
   ops = ops.push(op)
   return applyOp(opSet.set('local', ops), op.set('actor', actor))
 }
 
-function addChange(opSet, change) {
+function addChange(opSet: OpSet, change) {
   opSet = opSet.update('queue', queue => queue.push(change))
   return applyQueuedOps(opSet)
 }
 
-function getMissingChanges(opSet, haveDeps) {
+function getMissingChanges(opSet: OpSet, haveDeps): any {
   const allDeps = transitiveDeps(opSet, haveDeps)
-  return opSet.get('states')
+  const states: Map<string, any> = opSet.get('states')
+  return states
     .map((states, actor) => states.skip(allDeps.get(actor, 0)))
     .valueSeq()
     .flatten(1)
@@ -304,8 +310,8 @@ function getChangesForActor(opSet, forActor, afterSeq = 0) {
 }
 
 function getMissingDeps(opSet) {
-  let missing = {}
-  for (let change of opSet.get('queue')) {
+  const missing = {}
+  for (const change of opSet.get('queue')) {
     const deps = change.get('deps').set(change.get('actor'), change.get('seq') - 1)
     deps.forEach((depSeq, depActor) => {
       if (opSet.getIn(['clock', depActor], 0) < depSeq) {
@@ -316,7 +322,7 @@ function getMissingDeps(opSet) {
   return missing
 }
 
-function getFieldOps(opSet, objectId, key) {
+function getFieldOps(opSet: OpSet, objectId, key) {
   return opSet.getIn(['byObject', objectId, key], List())
 }
 
@@ -335,9 +341,9 @@ function lamportCompare(op1, op2) {
   return 0
 }
 
-function insertionsAfter(opSet, objectId, parentId, childId = '') {
+function insertionsAfter(opSet: OpSet, objectId, parentId, childId = '') {
   const match = /^(.*):(\d+)$/.exec(childId)
-  const childKey = match ? Map({actor: match[1], elem: parseInt(match[2])}) : null
+  const childKey = match ? Map({actor: match[1], elem: parseInt(match[2], 10)}) : null
 
   return opSet
     .getIn(['byObject', objectId, '_following', parentId], List())
@@ -368,11 +374,11 @@ function getPrevious(opSet, objectId, key) {
   const parentId = getParent(opSet, objectId, key)
   let children = insertionsAfter(opSet, objectId, parentId)
   if (children.first() === key) {
-    if (parentId === '_head') return null; else return parentId;
+    if (parentId === '_head') return null; else return parentId
   }
 
   let prevId
-  for (let child of children) {
+  for (const child of children) {
     if (child === key) break
     prevId = child
   }
@@ -430,11 +436,11 @@ function listElemByIndex(opSet, objectId, index, context) {
   }
 }
 
-function listLength(opSet, objectId) {
+function listLength(opSet: OpSet, objectId) {
   return opSet.getIn(['byObject', objectId, '_elemIds']).length
 }
 
-function listIterator(opSet, listId, mode, context): any {
+function listIterator(opSet: OpSet, listId, mode, context): any {
   let elem = '_head', index = -1
   const next = () => {
     while (elem) {

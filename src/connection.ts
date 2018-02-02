@@ -1,7 +1,7 @@
-import { Map, fromJS } from 'immutable';
+import { Map, fromJS } from 'immutable'
 
-import DocSet from "./doc_set";
-import { getMissingChanges } from './op_set';
+import DocSet from './doc_set'
+import { getMissingChanges } from './op_set'
 
 // Returns true if all components of
 // Returns true if all components of clock1 are less than or equal to those of clock2.
@@ -20,6 +20,9 @@ function clockUnion(clockMap, docId, clock) {
   clock = clockMap.get(docId, Map()).mergeWith((x, y) => Math.max(x, y), clock)
   return clockMap.set(docId, clock)
 }
+
+type Message = { docId: string, clock: any, changes?: any }
+type SendMessage = (msg: Message) => any
 
 // Keeps track of the communication with one particular peer. Allows updates for many documents to
 // be multiplexed over a single connection.
@@ -41,13 +44,13 @@ function clockUnion(clockMap, docId, clock) {
 // ourClock is the most recent VClock that we've advertised to the peer (i.e. where we've
 // told the peer that we have it).
 export default class Connection {
-  private _docSet: any;
-  private _sendMsg: any;
-  private _theirClock
-  private _ourClock
-  private _docChangedHandler
+  private _docSet: DocSet
+  private _sendMsg: SendMessage
+  private _theirClock: Map<any, any>
+  private _ourClock: Map<any, any>
+  private _docChangedHandler: any
 
-  constructor (docSet, sendMsg) {
+  constructor(docSet: DocSet, sendMsg: SendMessage) {
     this._docSet = docSet
     this._sendMsg = sendMsg
     this._theirClock = Map()
@@ -55,23 +58,23 @@ export default class Connection {
     this._docChangedHandler = this.docChanged.bind(this)
   }
 
-  open () {
-    for (let docId of this._docSet.docIds) this.docChanged(docId, this._docSet.getDoc(docId))
+  open() {
+    for (const docId of this._docSet.docIds) this.docChanged(docId, this._docSet.getDoc(docId))
     this._docSet.registerHandler(this._docChangedHandler)
   }
 
-  close () {
+  close() {
     this._docSet.unregisterHandler(this._docChangedHandler)
   }
 
-  sendMsg (docId, clock, changes?: any) {
-    const msg: {docId: string, clock: any, changes?: any} = {docId, clock: clock.toJS()}
+  sendMsg(docId, clock, changes?: any) {
+    const msg: Message = { docId, clock: clock.toJS() }
     this._ourClock = clockUnion(this._ourClock, docId, clock)
     if (changes) msg.changes = changes.toJS()
     this._sendMsg(msg)
   }
 
-  maybeSendChanges (docId) {
+  maybeSendChanges(docId) {
     const doc = this._docSet.getDoc(docId)
     const clock = doc._state.getIn(['opSet', 'clock'])
 
@@ -88,11 +91,11 @@ export default class Connection {
   }
 
   // Callback that is called by the docSet whenever a document is changed
-  docChanged (docId, doc) {
+  docChanged(docId: string, doc) {
     const clock = doc._state.getIn(['opSet', 'clock'])
     if (!clock) {
       throw new TypeError('This object cannot be used for network sync. ' +
-                          'Are you trying to sync a snapshot from the history?')
+        'Are you trying to sync a snapshot from the history?')
     }
 
     if (!lessOrEqual(this._ourClock.get(docId, Map()), clock)) {
@@ -102,7 +105,7 @@ export default class Connection {
     this.maybeSendChanges(docId)
   }
 
-  receiveMsg (msg) {
+  receiveMsg(msg: Message) {
     if (msg.clock) {
       this._theirClock = clockUnion(this._theirClock, msg.docId, fromJS(msg.clock))
     }

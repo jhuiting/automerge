@@ -1,5 +1,5 @@
-import { Map, List, Set, fromJS } from 'immutable';
-import * as uuid from "uuid/v4";
+import { fromJS, List } from 'immutable'
+import * as uuid from 'uuid'
 const transit = require('transit-immutable-js')
 
 import { rootObjectProxy } from './proxies'
@@ -13,7 +13,7 @@ function isObject(obj) {
 
 function makeOp(state, opProps) {
   const opSet = state.get('opSet'), actor = state.get('actorId'), op = fromJS(opProps)
-  let [opSet2, diff] = OpSet.addLocalOp(opSet, op, actor)
+  const [opSet2] = OpSet.addLocalOp(opSet, op, actor)
   return state.set('opSet', opSet2)
 }
 
@@ -29,7 +29,7 @@ function insertAfter(state, listId, elemId) {
 
 function createNestedObjects(state, value) {
   if (typeof value._objectId === 'string') return [state, value._objectId]
-  const objectId = uuid()
+  const objectId = uuid.v4()
 
   if (value instanceof Text) {
     state = makeOp(state, { action: 'makeText', obj: objectId })
@@ -43,7 +43,7 @@ function createNestedObjects(state, value) {
     }
   } else {
     state = makeOp(state, { action: 'makeMap', obj: objectId })
-    for (let key of Object.keys(value)) state = setField(state, objectId, key, value[key])
+    for (const key of Object.keys(value)) state = setField(state, objectId, key, value[key])
   }
   return [state, objectId]
 }
@@ -51,7 +51,7 @@ function createNestedObjects(state, value) {
 function setField(state, objectId, key, value) {
   if (typeof key !== 'string') {
     throw new TypeError('The key of a map entry must be a string, but ' +
-                        JSON.stringify(key) + ' is a ' + (typeof key))
+      JSON.stringify(key) + ' is a ' + (typeof key))
   }
   if (key === '') {
     throw new TypeError('The key of a map entry must not be an empty string')
@@ -60,7 +60,7 @@ function setField(state, objectId, key, value) {
     throw new TypeError('Map entries starting with underscore are not allowed: ' + key)
   }
 
-  if (typeof value === 'undefined') {
+  if (typeof value === undefined) {
     return deleteField(state, objectId, key)
   } else if (isObject(value)) {
     const [newState, newId] = createNestedObjects(state, value)
@@ -73,9 +73,9 @@ function setField(state, objectId, key, value) {
 function splice(state, objectId, start, deletions, insertions) {
   let elemIds = state.getIn(['opSet', 'byObject', objectId, '_elemIds'])
   for (let i = 0; i < deletions; i++) {
-    let elemId = elemIds.keyOf(start)
+    const elemId = elemIds.keyOf(start)
     if (elemId) {
-      state = makeOp(state, {action: 'del', obj: objectId, key: elemId})
+      state = makeOp(state, { action: 'del', obj: objectId, key: elemId })
       elemIds = state.getIn(['opSet', 'byObject', objectId, '_elemIds'])
     }
   }
@@ -85,7 +85,7 @@ function splice(state, objectId, start, deletions, insertions) {
   if (!prev && insertions.length > 0) {
     throw new RangeError('Cannot insert at index ' + start + ', which is past the end of the list')
   }
-  for (let ins of insertions) {
+  for (const ins of insertions) {
     [state, prev] = insertAfter(state, objectId, prev)
     state = setField(state, objectId, prev, ins)
   }
@@ -117,7 +117,7 @@ function makeChange(root, newState, message) {
   const actor = root._state.get('actorId')
   const seq = root._state.getIn(['opSet', 'clock', actor], 0) + 1
   const deps = root._state.getIn(['opSet', 'deps']).remove(actor)
-  const change = fromJS({actor, seq, deps, message})
+  const change = fromJS({ actor, seq, deps, message })
     .set('ops', newState.getIn(['opSet', 'local']))
   return FreezeAPI.applyChanges(root, List.of(change), true)
 }
@@ -125,24 +125,24 @@ function makeChange(root, newState, message) {
 ///// Automerge.* API
 
 function init(actorId?: string) {
-  return FreezeAPI.init(actorId || uuid())
+  return FreezeAPI.init(actorId || uuid.v4())
 }
 
 function checkTarget(funcName, target, needMutable?: boolean) {
   if (!target || !target._state || !target._objectId ||
-      !target._state.hasIn(['opSet', 'byObject', target._objectId])) {
+    !target._state.hasIn(['opSet', 'byObject', target._objectId])) {
     throw new TypeError('The first argument to Automerge.' + funcName +
-                        ' must be the object to modify, but you passed ' + JSON.stringify(target))
+      ' must be the object to modify, but you passed ' + JSON.stringify(target))
   }
   if (needMutable && (!target._change || !target._change.mutable)) {
     throw new TypeError('Automerge.' + funcName + ' requires a writable object as first argument, ' +
-                        'but the one you passed is read-only. Please use Automerge.change() ' +
-                        'to get a writable version.')
+      'but the one you passed is read-only. Please use Automerge.change() ' +
+      'to get a writable version.')
   }
 }
 
 function parseListIndex(key) {
-  if (typeof key === 'string' && /^[0-9]+$/.test(key)) key = parseInt(key)
+  if (typeof key === 'string' && /^[0-9]+$/.test(key)) key = parseInt(key, 10)
   if (typeof key !== 'number')
     throw new TypeError('A list index must be a number, but you passed ' + JSON.stringify(key))
   if (key < 0 || isNaN(key) || key === Infinity || key === -Infinity)
@@ -162,7 +162,7 @@ function change(doc, message: string | Function, callback?: Function) {
     [message, callback] = [callback, message]
   }
 
-  const context = {state: doc._state, mutable: true, setField, splice, setListIndex, deleteField}
+  const context = { state: doc._state, mutable: true, setField, splice, setListIndex, deleteField }
   callback(rootObjectProxy(context))
   return makeChange(doc, context.state, message)
 }
@@ -170,9 +170,9 @@ function change(doc, message: string | Function, callback?: Function) {
 function assign(target, values) {
   checkTarget('assign', target, true)
   if (!isObject(values)) throw new TypeError('The second argument to Automerge.assign must be an ' +
-                                             'object, but you passed ' + JSON.stringify(values))
+    'object, but you passed ' + JSON.stringify(values))
   let state = target._state
-  for (let key of Object.keys(values)) {
+  for (const key of Object.keys(values)) {
     if (target._type === 'list') {
       state = setListIndex(state, target._objectId, key, values[key])
     } else {
@@ -182,8 +182,8 @@ function assign(target, values) {
   target._change.state = state
 }
 
-function load(string, actorId) {
-  return FreezeAPI.applyChanges(FreezeAPI.init(actorId), transit.fromJSON(string), false)
+function load(jsonString, actorId) {
+  return FreezeAPI.applyChanges(FreezeAPI.init(actorId), transit.fromJSON(jsonString), false)
 }
 
 function save(doc) {
@@ -212,10 +212,10 @@ function getHistory(doc) {
   const history = doc._state.getIn(['opSet', 'history'])
   return history.map((change, index) => {
     return {
-      get change () {
+      get change() {
         return change.toJS()
       },
-      get snapshot () {
+      get snapshot() {
         const root = FreezeAPI.init(doc._state.get('actorId'))
         return FreezeAPI.applyChanges(root, history.slice(0, index + 1), false)
       }
@@ -255,8 +255,9 @@ function diff(oldState, newState) {
   let opSet = oldState._state.get('opSet').set('diff', List())
   const changes = OpSet.getMissingChanges(newState._state.get('opSet'), oldClock)
 
-  let diffs = [], diff
-  for (let change of changes) {
+  const diffs = []
+  let diff
+  for (const change of changes) {
     [opSet, diff] = OpSet.addChange(opSet, change)
     diffs.push(...diff)
   }

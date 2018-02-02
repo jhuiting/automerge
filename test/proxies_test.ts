@@ -14,7 +14,7 @@ describe('Automerge proxy API', () => {
     it('should know its actor ID', () => {
       Automerge.change(Automerge.init(), doc => {
         assert(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(doc._actorId))
-        assert.notEqual(doc._actorId, '00000000-0000-0000-0000-000000000000')
+        assert.notStrictEqual(doc._actorId, '00000000-0000-0000-0000-000000000000')
         assert.strictEqual(Automerge.init('customActorId')._actorId, 'customActorId')
       })
     })
@@ -182,8 +182,8 @@ describe('Automerge proxy API', () => {
 
     it('should support iteration', () => {
       Automerge.change(root, doc => {
-        let copy = []
-        for (let x of doc.list) copy.push(x)
+        const copy = []
+        for (const x of doc.list) copy.push(x)
         assert.deepEqual(copy, [1, 2, 3])
 
         // spread operator also uses iteration protocol
@@ -201,8 +201,8 @@ describe('Automerge proxy API', () => {
 
       it('entries()', () => {
         Automerge.change(root, doc => {
-          let copy = []
-          for (let x of doc.list.entries()) copy.push(x)
+          const copy = []
+          for (const x of doc.list.entries()) copy.push(x)
           assert.deepEqual(copy, [[0, 1], [1, 2], [2, 3]])
           assert.deepEqual([...doc.list.entries()], [[0, 1], [1, 2], [2, 3]])
         })
@@ -248,7 +248,7 @@ describe('Automerge proxy API', () => {
       it('forEach()', () => {
         Automerge.change(root, doc => {
           doc.empty.forEach(() => { assert.fail('was called', 'not called', 'callback error') })
-          let binary = []
+          const binary = []
           doc.list.forEach(num => binary.push(num.toString(2)))
           assert.deepEqual(binary, ['1', '10', '11'])
           doc.list.forEach(function () { assert.strictEqual(this.hello, 'world') }, {hello: 'world'})
@@ -286,8 +286,8 @@ describe('Automerge proxy API', () => {
 
       it('keys()', () => {
         Automerge.change(root, doc => {
-          let keys = []
-          for (let x of doc.list.keys()) keys.push(x)
+          const keys = []
+          for (const x of doc.list.keys()) keys.push(x)
           assert.deepEqual(keys, [0, 1, 2])
           assert.deepEqual([...doc.list.keys()], [0, 1, 2])
         })
@@ -362,8 +362,8 @@ describe('Automerge proxy API', () => {
 
       it('values()', () => {
         Automerge.change(root, doc => {
-          let values = []
-          for (let x of doc.list.values()) values.push(x)
+          const values = []
+          for (const x of doc.list.values()) values.push(x)
           assert.deepEqual(values, [1, 2, 3])
           assert.deepEqual([...doc.list.values()], [1, 2, 3])
         })

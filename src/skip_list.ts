@@ -8,19 +8,20 @@ function* randomLevel() {
   while (true) {
     const rand = Math.floor(Math.random() * 4294967296)
     let level = 1
+    // tslint:disable-next-line:no-bitwise
     while (rand < 1 << (32 - 2 * level) && level < 16) level += 1
     yield level
   }
 }
 
 class Node {
-  level: any;
-  value: any;
-  key: any;
-  prevKey;
-  nextKey;
-  nextCount;
-  prevCount;
+  level: any
+  value: any
+  key: any
+  prevKey: any
+  nextKey: any
+  nextCount: any
+  prevCount: any
 
   constructor (key, value, level, prevKey, nextKey, prevCount, nextCount) {
     this.key = key
@@ -113,11 +114,11 @@ class Node {
 }
 
 export default class SkipList {
-  _nodes;
-  _randomSource;
-  length: number;
-  
-  constructor (randomSource?: Function) {
+  _nodes: Map<any, any>
+  _randomSource: any
+  length: number
+
+  constructor (randomSource?: any) {
     const head = new Node(null, null, 1, [], [null], [], [null])
     const random = randomSource ? randomSource() : randomLevel()
     return makeInstance(0, Map().set(null, head), random)
@@ -134,7 +135,7 @@ export default class SkipList {
       let preKey = preKeys[level - 1]
       let count = preCounts[level - 1]
       while (preKey) {
-        let node = this._nodes.get(preKey)
+        const node = this._nodes.get(preKey)
         if (node.level > level) break
         if (node.level < level) {
           throw new RangeError('Node ' + preKey + ' below expected level ' + (level - 1))
@@ -156,7 +157,7 @@ export default class SkipList {
       let sucKey = sucKeys[level - 1]
       let count = sucCounts[level - 1]
       while (sucKey) {
-        let node = this._nodes.get(sucKey)
+        const node = this._nodes.get(sucKey)
         if (node.level > level) break
         if (node.level < level) {
           throw new RangeError('Node ' + sucKey + ' below expected level ' + (level - 1))
@@ -315,9 +316,9 @@ export default class SkipList {
     while (key) {
       const node = this._nodes.get(key)
       switch (mode) {
-        case 'keys':    yield key; break;
-        case 'values':  yield node.value; break;
-        case 'entries': yield [key, node.value]; break;
+        case 'keys':    yield key; break
+        case 'values':  yield node.value; break
+        case 'entries': yield [key, node.value]; break
       }
       key = node.nextKey[0]
     }

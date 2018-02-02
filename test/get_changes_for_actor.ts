@@ -1,6 +1,5 @@
 import * as assert from 'assert'
 import Automerge from '../src/automerge'
-import { equalsOneOf } from './helpers'
 
 describe('Automerge getChangesForActor API', () => {
   let oneDoc, twoDoc, mergeDoc
@@ -14,10 +13,9 @@ describe('Automerge getChangesForActor API', () => {
   })
 
   it('should get changes for a single actor', () => {
-    let actorChanges = Automerge.getChangesForActor(mergeDoc, 'actor2')
+    const actorChanges = Automerge.getChangesForActor(mergeDoc, 'actor2')
 
-    assert.equal(actorChanges.length, 2)
-    assert.equal(actorChanges[0].actor, 'actor2')
+    assert.strictEqual(actorChanges.length, 2)
+    assert.strictEqual(actorChanges[0].actor, 'actor2')
   })
 })
-

@@ -1,10 +1,9 @@
-import * as OpSet from './op_set';
-import SkipList from './skip_list';
+import SkipList from './skip_list'
 
 export class Text {
-  objectId: any;
-  opSet: any;
-  
+  objectId: string
+  opSet: any
+
   constructor (opSet?: any, objectId?: string) {
     this.opSet = opSet
     this.objectId = objectId
@@ -38,7 +37,7 @@ export class Text {
 }
 
 // Read-only methods that can delegate to the JavaScript built-in array
-for (let method of ['concat', 'every', 'filter', 'find', 'findIndex', 'forEach', 'includes',
+for (const method of ['concat', 'every', 'filter', 'find', 'findIndex', 'forEach', 'includes',
                     'indexOf', 'join', 'lastIndexOf', 'map', 'reduce', 'reduceRight',
                     'slice', 'some', 'toLocaleString', 'toString']) {
   Text.prototype[method] = function (...args) {

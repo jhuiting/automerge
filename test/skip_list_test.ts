@@ -9,22 +9,22 @@ function iter(array) {
 describe('SkipList', () => {
   describe('.indexOf()', () => {
     it('should return -1 on an empty list', () => {
-      let s = new SkipList()
+      const s = new SkipList()
       assert.strictEqual(s.indexOf('hello'), -1)
     })
 
     it('should return -1 for a nonexistent key', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'a')
+      const s = new SkipList().insertAfter(null, 'a', 'a')
       assert.strictEqual(s.indexOf('b'), -1)
     })
 
     it('should return 0 for the first list element', () => {
-      let s = new SkipList().insertAfter(null, 'b', 'b').insertAfter('b', 'c', 'c').insertAfter(null, 'a', 'a')
+      const s = new SkipList().insertAfter(null, 'b', 'b').insertAfter('b', 'c', 'c').insertAfter(null, 'a', 'a')
       assert.strictEqual(s.indexOf('a'), 0)
     })
 
     it('should return length-1 for the last list element', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').
+      const s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').
         insertAfter('b', 'c', 'c').insertAfter('c', 'd', 'd')
       assert.strictEqual(s.indexOf('d'), 3)
     })
@@ -39,12 +39,12 @@ describe('SkipList', () => {
 
   describe('.length', () => {
     it('should be 0 for an empty list', () => {
-      let s = new SkipList()
+      const s = new SkipList()
       assert.strictEqual(s.length, 0)
     })
 
     it('should increase by 1 for every insertion', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').insertAfter('b', 'c', 'c')
+      const s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').insertAfter('b', 'c', 'c')
       assert.strictEqual(s.length, 3)
     })
 
@@ -58,27 +58,27 @@ describe('SkipList', () => {
 
   describe('.keyOf()', () => {
     it('should return null on an empty list', () => {
-      let s = new SkipList()
+      const s = new SkipList()
       assert.strictEqual(s.keyOf(0), null)
     })
 
     it('should return null for an index past the end of the list', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b')
+      const s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b')
       assert.strictEqual(s.keyOf(2), null)
     })
 
     it('should return the first key for index 0', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').insertAfter('b', 'c', 'c')
+      const s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').insertAfter('b', 'c', 'c')
       assert.strictEqual(s.keyOf(0), 'a')
     })
 
     it('should return the last key for index -1', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').insertAfter('b', 'c', 'c')
+      const s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').insertAfter('b', 'c', 'c')
       assert.strictEqual(s.keyOf(-1), 'c')
     })
 
     it('should return the last key for index length-1', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').insertAfter('b', 'c', 'c')
+      const s = new SkipList().insertAfter(null, 'a', 'a').insertAfter('a', 'b', 'b').insertAfter('b', 'c', 'c')
       assert.strictEqual(s.keyOf(2), 'c')
     })
 
@@ -92,12 +92,12 @@ describe('SkipList', () => {
 
   describe('.getValue()', () => {
     it('should return undefined for a nonexistent key', () => {
-      let s = new SkipList()
+      const s = new SkipList()
       assert.strictEqual(s.getValue('foo'), undefined)
     })
 
     it('should return the inserted value when present', () => {
-      let s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
+      const s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
       assert.strictEqual(s.getValue('key1'), 'value1')
       assert.strictEqual(s.getValue('key2'), 'value2')
     })
@@ -105,13 +105,13 @@ describe('SkipList', () => {
 
   describe('.setValue()', () => {
     it('should throw an exception when setting a nonexistent key', () => {
-      let s = new SkipList().insertAfter(null, 'key1', 'value1')
+      const s = new SkipList().insertAfter(null, 'key1', 'value1')
       assert.throws(() => { s.setValue('key2', 'value2') }, /referenced key does not exist/)
     })
 
     it('should update the value for an existing key', () => {
-      let s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
-      let s2 = s.setValue('key2', 'updated value')
+      const s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
+      const s2 = s.setValue('key2', 'updated value')
       assert.strictEqual(s.getValue('key2'), 'value2')
       assert.strictEqual(s2.getValue('key2'), 'updated value')
       assert.strictEqual(s2.getValue('key1'), 'value1')
@@ -121,8 +121,8 @@ describe('SkipList', () => {
 
   describe('.insertIndex()', () => {
     it('should insert the new key-value pair at the given index', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'aa').insertAfter('a', 'c', 'cc')
-      let s2 = s.insertIndex(1, 'b', 'bb')
+      const s = new SkipList().insertAfter(null, 'a', 'aa').insertAfter('a', 'c', 'cc')
+      const s2 = s.insertIndex(1, 'b', 'bb')
       assert.strictEqual(s2.indexOf('a'), 0)
       assert.strictEqual(s2.indexOf('b'), 1)
       assert.strictEqual(s2.indexOf('c'), 2)
@@ -130,7 +130,7 @@ describe('SkipList', () => {
     })
 
     it('should insert at the head if the index is zero', () => {
-      let s = new SkipList().insertIndex(0, 'a', 'aa')
+      const s = new SkipList().insertIndex(0, 'a', 'aa')
       assert.strictEqual(s.keyOf(0), 'a')
       assert.strictEqual(s.length, 1)
     })
@@ -138,32 +138,32 @@ describe('SkipList', () => {
 
   describe('.removeIndex()', () => {
     it('should remove the value at the given index', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'aa').insertAfter('a', 'b', 'bb').insertAfter('b', 'c', 'cc')
-      let s2 = s.removeIndex(1)
+      const s = new SkipList().insertAfter(null, 'a', 'aa').insertAfter('a', 'b', 'bb').insertAfter('b', 'c', 'cc')
+      const s2 = s.removeIndex(1)
       assert.strictEqual(s2.indexOf('a'), 0)
       assert.strictEqual(s2.indexOf('b'), -1)
       assert.strictEqual(s2.indexOf('c'), 1)
     })
 
     it('should raise an error if the given index is out of bounds', () => {
-      let s = new SkipList().insertAfter(null, 'a', 'aa').insertAfter('a', 'b', 'bb').insertAfter('b', 'c', 'cc')
+      const s = new SkipList().insertAfter(null, 'a', 'aa').insertAfter('a', 'b', 'bb').insertAfter('b', 'c', 'cc')
       assert.throws(() => { s.removeIndex(3) }, /key cannot be removed/)
     })
   })
 
   describe('iterators', () => {
     it('should iterate over values by default', () => {
-      let s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
+      const s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
       assert.deepEqual([...s], ['value1', 'value2'])
     })
 
     it('should support iterating over keys', () => {
-      let s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
+      const s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
       assert.deepEqual([...s.iterator('keys')], ['key1', 'key2'])
     })
 
     it('should support iterating over entries', () => {
-      let s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
+      const s = new SkipList().insertAfter(null, 'key1', 'value1').insertAfter('key1', 'key2', 'value2')
       assert.deepEqual([...s.iterator('entries')], [['key1', 'value1'], ['key2', 'value2']])
     })
   })
@@ -192,10 +192,10 @@ describe('SkipList', () => {
 
     it('should behave like a JS array', () => {
       jsc.assert(jsc.forall(jsc.bless({generator: makeSkipListOps}), function (ops) {
-        let levels = ops.filter(op => op.hasOwnProperty('insertAfter')).map(op => op.level)
+        const levels = ops.filter(op => op.hasOwnProperty('insertAfter')).map(op => op.level)
         let skipList = new SkipList(iter(levels))
-        let shadow = []
-        for (let op of ops) {
+        const shadow = []
+        for (const op of ops) {
           if (op.hasOwnProperty('insertAfter')) {
             skipList = skipList.insertAfter(op.insertAfter, op.id, op.id)
             shadow.splice(shadow.indexOf(op.insertAfter) + 1, 0, op.id)
@@ -225,7 +225,7 @@ describe('SkipList', () => {
 
   describe('internal structure', () => {
     it('should have a head node when initialized', () => {
-      let s = new SkipList()
+      const s = new SkipList()
       assert.deepEqual(s._nodes.get(null),
                        {key: null, value: null, level: 1,
                         prevKey: [], prevCount: [], nextKey: [null], nextCount: [null]})
@@ -344,7 +344,7 @@ describe('SkipList', () => {
     })
 
     it('should allow the only element to be removed', () => {
-      let s = new SkipList(iter([1])).insertAfter(null, '0', '0').removeKey('0')
+      const s = new SkipList(iter([1])).insertAfter(null, '0', '0').removeKey('0')
       assert.deepEqual(s._nodes.get(null),
                        {key: null, value: null, level: 1,
                         prevKey: [], prevCount: [], nextKey: [null], nextCount: [1]})

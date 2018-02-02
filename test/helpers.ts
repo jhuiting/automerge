@@ -1,4 +1,4 @@
-const assert = require('assert')
+import * as assert from 'assert'
 
 // Assertion that succeeds if the first argument deepEquals at least one of the
 // subsequent arguments (but we don't care which one)

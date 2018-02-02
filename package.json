@@ -7,6 +7,7 @@
     "browsertest": "karma start karma.conf.js",
     "build": "tsc",
     "pretest": "npm run build",
+    "lint": "tslint --project tsconfig.json",
     "test": "mocha dist/test",
     "webpack": "webpack --config webpack.config.js"
   },
@@ -17,6 +18,9 @@
     "immutable": "^3.8.1",
     "transit-immutable-js": "^0.7.0",
     "transit-js": "^0.8.846",
+    "tslint": "^5.9.1",
+    "tslint-microsoft-contrib": "^5.0.2",
+    "typescript": "^2.7.1",
     "uuid": "^3.1.0"
   },
   "devDependencies": {

@@ -1,4 +1,3 @@
-import { List, fromJS } from 'immutable'
 import * as  OpSet from './op_set'
 
 function listImmutable(attempt) {
@@ -16,7 +15,7 @@ function listMethods(context, listId) {
 
     fill(value, start, end) {
       if (!context.mutable) listImmutable('fill a list with a value')
-      for (let [index, elem] of OpSet.listIterator(context.state.get('opSet'), listId, 'elems', context)) {
+      for (const [index, elem] of OpSet.listIterator(context.state.get('opSet'), listId, 'elems', context)) {
         if (end && index >= end) break
         if (index >= (start || 0)) {
           context.state = context.setField(context.state, listId, elem, value)
@@ -34,7 +33,7 @@ function listMethods(context, listId) {
     pop() {
       if (!context.mutable) listImmutable('pop the last element off a list')
       const length = OpSet.listLength(context.state.get('opSet'), listId)
-      if (length == 0) return
+      if (length === 0) return
       const last = OpSet.listElemByIndex(context.state.get('opSet'), listId, length - 1, context)
       context.state = context.splice(context.state, listId, length - 1, 1, [])
       return last
@@ -69,12 +68,12 @@ function listMethods(context, listId) {
     }
   }
 
-  for (let iterator of ['entries', 'keys', 'values']) {
+  for (const iterator of ['entries', 'keys', 'values']) {
     methods[iterator] = () => OpSet.listIterator(context.state.get('opSet'), listId, iterator, context)
   }
 
   // Read-only methods that can delegate to the JavaScript built-in implementations
-  for (let method of ['concat', 'every', 'filter', 'find', 'findIndex', 'forEach', 'includes',
+  for (const method of ['concat', 'every', 'filter', 'find', 'findIndex', 'forEach', 'includes',
                       'indexOf', 'join', 'lastIndexOf', 'map', 'reduce', 'reduceRight',
                       'slice', 'some', 'toLocaleString', 'toString']) {
     methods[method] = (...args) => {
@@ -86,6 +85,7 @@ function listMethods(context, listId) {
   return methods
 }
 
+// tslint:disable-next-line:variable-name
 const MapHandler = {
   get (target, key) {
     const { context, objectId } = target
@@ -138,6 +138,7 @@ const MapHandler = {
   }
 }
 
+// tslint:disable-next-line:variable-name
 const ListHandler = {
   get (target, key) {
     const [context, objectId] = target
@@ -151,7 +152,7 @@ const ListHandler = {
     if (key === '_change') return context
     if (key === 'length') return OpSet.listLength(context.state.get('opSet'), objectId)
     if (typeof key === 'string' && /^[0-9]+$/.test(key)) {
-      return OpSet.listElemByIndex(context.state.get('opSet'), objectId, parseInt(key), context)
+      return OpSet.listElemByIndex(context.state.get('opSet'), objectId, parseInt(key, 10), context)
     }
     return listMethods(context, objectId)[key]
   },
@@ -180,7 +181,7 @@ const ListHandler = {
   has (target, key) {
     const [context, objectId] = target
     if (typeof key === 'string' && /^[0-9]+$/.test(key)) {
-      return parseInt(key) < OpSet.listLength(context.state.get('opSet'), objectId)
+      return parseInt(key, 10) < OpSet.listLength(context.state.get('opSet'), objectId)
     }
     return (key === 'length') || (key === '_type') || (key === '_objectId') ||
       (key === '_state') || (key === '_actorId')
@@ -190,7 +191,7 @@ const ListHandler = {
     const [context, objectId] = target
     if (key === 'length') return {}
     if (key === '_objectId' || (typeof key === 'string' && /^[0-9]+$/.test(key))) {
-      if (parseInt(key) < OpSet.listLength(context.state.get('opSet'), objectId)) {
+      if (parseInt(key, 10) < OpSet.listLength(context.state.get('opSet'), objectId)) {
         return {configurable: true, enumerable: true}
       }
     }
@@ -199,7 +200,7 @@ const ListHandler = {
   ownKeys (target) {
     const [context, objectId] = target
     const length = OpSet.listLength(context.state.get('opSet'), objectId)
-    let keys = ['length', '_objectId']
+    const keys = ['length', '_objectId']
     for (let i = 0; i < length; i++) keys.push(i.toString())
     return keys
   }
@@ -227,4 +228,4 @@ function rootObjectProxy(context) {
   return mapProxy(context, '00000000-0000-0000-0000-000000000000')
 }
 
-export{ rootObjectProxy }
+export { rootObjectProxy }
