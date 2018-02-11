@@ -1,5 +1,5 @@
 import { Map, List, Set } from 'immutable'
-import { getObjectFields, getObjectConflicts, getObjectField, listIterator, init  as initOpSet, ROOT_ID, addChange} from'./op_set'
+import { getObjectFields, getObjectConflicts, getObjectField, listIterator, init  as initOpSet, ROOT_ID, addChange } from './op_set'
 import { Text } from './text'
 
 function isObject(obj) {
@@ -155,7 +155,7 @@ function updateCache(opSet, diffs) {
 
   // Update cache entries on the path from the root to the modified object
   while (!affected.isEmpty()) {
-    const parentOps:any = affected.flatMap(objectId => opSet.getIn(['byObject', objectId, '_inbound'], Set()))
+    const parentOps: any = affected.flatMap(objectId => opSet.getIn(['byObject', objectId, '_inbound'], Set()))
     affected = Set()
     for (let ref of parentOps) {
       affected = affected.add(ref.get('obj'))

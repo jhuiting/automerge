@@ -1,4 +1,3 @@
-import { List, fromJS } from 'immutable'
 import * as  OpSet from './op_set'
 
 function listImmutable(attempt) {
@@ -34,7 +33,7 @@ function listMethods(context, listId) {
     pop() {
       if (!context.mutable) listImmutable('pop the last element off a list')
       const length = OpSet.listLength(context.state.get('opSet'), listId)
-      if (length == 0) return
+      if (length === 0) return
       const last = OpSet.listElemByIndex(context.state.get('opSet'), listId, length - 1, context)
       context.state = context.splice(context.state, listId, length - 1, 1, [])
       return last
@@ -86,7 +85,7 @@ function listMethods(context, listId) {
   return methods
 }
 
-const MapHandler = {
+const mapHandler = {
   get (target, key) {
     const { context, objectId } = target
     if (!context.state.hasIn(['opSet', 'byObject', objectId])) throw 'Target object does not exist: ' + objectId
@@ -138,7 +137,7 @@ const MapHandler = {
   }
 }
 
-const ListHandler = {
+const listHandler = {
   get (target, key) {
     const [context, objectId] = target
     if (!context.state.hasIn(['opSet', 'byObject', objectId])) throw 'Target object does not exist: ' + objectId
@@ -151,7 +150,7 @@ const ListHandler = {
     if (key === '_change') return context
     if (key === 'length') return OpSet.listLength(context.state.get('opSet'), objectId)
     if (typeof key === 'string' && /^[0-9]+$/.test(key)) {
-      return OpSet.listElemByIndex(context.state.get('opSet'), objectId, parseInt(key), context)
+      return OpSet.listElemByIndex(context.state.get('opSet'), objectId, parseInt(key, 10), context)
     }
     return listMethods(context, objectId)[key]
   },
@@ -180,7 +179,7 @@ const ListHandler = {
   has (target, key) {
     const [context, objectId] = target
     if (typeof key === 'string' && /^[0-9]+$/.test(key)) {
-      return parseInt(key) < OpSet.listLength(context.state.get('opSet'), objectId)
+      return parseInt(key, 10) < OpSet.listLength(context.state.get('opSet'), objectId)
     }
     return (key === 'length') || (key === '_type') || (key === '_objectId') ||
       (key === '_state') || (key === '_actorId')
@@ -190,7 +189,7 @@ const ListHandler = {
     const [context, objectId] = target
     if (key === 'length') return {}
     if (key === '_objectId' || (typeof key === 'string' && /^[0-9]+$/.test(key))) {
-      if (parseInt(key) < OpSet.listLength(context.state.get('opSet'), objectId)) {
+      if (parseInt(key, 10) < OpSet.listLength(context.state.get('opSet'), objectId)) {
         return {configurable: true, enumerable: true}
       }
     }
@@ -206,11 +205,11 @@ const ListHandler = {
 }
 
 function mapProxy(context, objectId) {
-  return new Proxy({context, objectId}, MapHandler)
+  return new Proxy({context, objectId}, mapHandler)
 }
 
 function listProxy(context, objectId) {
-  return new Proxy([context, objectId], ListHandler)
+  return new Proxy([context, objectId], listHandler)
 }
 
 function instantiateProxy(opSet, objectId) {
@@ -227,4 +226,4 @@ function rootObjectProxy(context) {
   return mapProxy(context, '00000000-0000-0000-0000-000000000000')
 }
 
-export{ rootObjectProxy }
+export { rootObjectProxy }

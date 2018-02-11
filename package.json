@@ -6,6 +6,7 @@
   "scripts": {
     "browsertest": "karma start karma.conf.js",
     "build": "tsc",
+    "lint": "tslint --project tsconfig.json",
     "pretest": "npm run build",
     "test": "mocha dist/test",
     "webpack": "webpack --config webpack.config.js"

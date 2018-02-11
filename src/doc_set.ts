@@ -1,17 +1,17 @@
 import { Map, Set } from 'immutable'
-import * as uuid from 'uuid/v4'
+import * as uuid from 'uuid'
 import FreezeAPI from './freeze_api'
 
 export default class DocSet {
-  private docs
-  private handlers
-  
+  private docs: Map<string, any>
+  private handlers: Set<Function>
+
   constructor () {
     this.docs = Map()
     this.handlers = Set<Function>()
   }
 
-  get docIds () {
+  get docIds (): any {
     return this.docs.keys()
   }
 
@@ -25,7 +25,7 @@ export default class DocSet {
   }
 
   applyChanges (docId, changes) {
-    let doc = this.docs.get(docId) || FreezeAPI.init(uuid())
+    let doc = this.docs.get(docId) || FreezeAPI.init(uuid.v4())
     doc = FreezeAPI.applyChanges(doc, changes, true)
     this.setDoc(docId, doc)
     return doc

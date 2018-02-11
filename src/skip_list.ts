@@ -8,19 +8,20 @@ function* randomLevel() {
   while (true) {
     const rand = Math.floor(Math.random() * 4294967296)
     let level = 1
+    // tslint:disable-next-line:no-bitwise
     while (rand < 1 << (32 - 2 * level) && level < 16) level += 1
     yield level
   }
 }
 
 class Node {
-  level: any;
-  value: any;
-  key: any;
-  prevKey;
-  nextKey;
-  nextCount;
-  prevCount;
+  level: any
+  value: any
+  key: any
+  prevKey: any
+  nextKey: any
+  nextCount: any
+  prevCount: any
 
   constructor (key, value, level, prevKey, nextKey, prevCount, nextCount) {
     this.key = key
@@ -113,10 +114,10 @@ class Node {
 }
 
 export default class SkipList {
-  _nodes;
-  _randomSource;
-  length: number;
-  
+  _nodes: Map<any, any>
+  _randomSource: any
+  length: number
+
   constructor (randomSource?: Function) {
     const head = new Node(null, null, 1, [], [null], [], [null])
     const random = randomSource ? randomSource() : randomLevel()
@@ -315,9 +316,9 @@ export default class SkipList {
     while (key) {
       const node = this._nodes.get(key)
       switch (mode) {
-        case 'keys':    yield key; break;
-        case 'values':  yield node.value; break;
-        case 'entries': yield [key, node.value]; break;
+        case 'keys':    yield key; break
+        case 'values':  yield node.value; break
+        case 'entries': yield [key, node.value]; break
       }
       key = node.nextKey[0]
     }

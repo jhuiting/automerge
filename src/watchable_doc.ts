@@ -1,15 +1,15 @@
-import { Map, Set, fromJS } from 'immutable'
-import * as  uuid from 'uuid/v4';
+import { Set, fromJS } from 'immutable'
+import * as  uuid from 'uuid'
 
 import FreezeAPI from './freeze_api'
 
 export default class WatchableDoc {
-  public handlers;
-  public doc
+  handlers: Set<Function>
+  doc: any
 
   constructor (doc) {
-    this.doc = doc;
-    this.handlers = Set<Function>();
+    this.doc = doc
+    this.handlers = Set<Function>()
   }
 
   get () {
@@ -22,7 +22,7 @@ export default class WatchableDoc {
   }
 
   applyChanges (changes) {
-    let doc = this.doc || FreezeAPI.init(uuid())
+    let doc = this.doc || FreezeAPI.init(uuid.v4())
     doc = FreezeAPI.applyChanges(doc, fromJS(changes), true)
     this.set(doc)
     return doc

@@ -274,7 +274,7 @@ function addLocalOp(opSet, op, actor) {
 
   // Override any prior assignment operations for the same object and key
   if (action === 'set' || action === 'del' || action === 'link') {
-    ops = ops.filter(prev => prev.get('obj') != objectId || prev.get('key') != key)
+    ops = ops.filter(prev => prev.get('obj') !== objectId || prev.get('key') !== key)
   }
   ops = ops.push(op)
   return applyOp(opSet.set('local', ops), op.set('actor', actor))
@@ -337,7 +337,7 @@ function lamportCompare(op1, op2) {
 
 function insertionsAfter(opSet, objectId, parentId, childId = '') {
   const match = /^(.*):(\d+)$/.exec(childId)
-  const childKey = match ? Map({actor: match[1], elem: parseInt(match[2])}) : null
+  const childKey = match ? Map({actor: match[1], elem: parseInt(match[2], 10)}) : null
 
   return opSet
     .getIn(['byObject', objectId, '_following', parentId], List())
@@ -368,7 +368,7 @@ function getPrevious(opSet, objectId, key) {
   const parentId = getParent(opSet, objectId, key)
   let children = insertionsAfter(opSet, objectId, parentId)
   if (children.first() === key) {
-    if (parentId === '_head') return null; else return parentId;
+    if (parentId === '_head') return null; else return parentId
   }
 
   let prevId

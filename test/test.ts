@@ -163,7 +163,7 @@ describe('Automerge', () => {
       it('should assign a UUID to nested maps', () => {
         s1 = Automerge.change(s1, doc => { doc.nested = {} })
         assert(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(s1.nested._objectId))
-        assert.notEqual(s1.nested._objectId, '00000000-0000-0000-0000-000000000000')
+        assert.notStrictEqual(s1.nested._objectId, '00000000-0000-0000-0000-000000000000')
         assert.deepEqual(s1, {
           _objectId: '00000000-0000-0000-0000-000000000000',
           nested: {_objectId: s1.nested._objectId}
@@ -298,7 +298,9 @@ describe('Automerge', () => {
         assert.throws(() => { Automerge.change(s1, doc => doc.nested[''] = 'x') }, /must not be an empty string/)
         assert.throws(() => { Automerge.change(s1, doc => doc.nested = {'': 'x'}) }, /must not be an empty string/)
         assert.throws(() => { Automerge.change(s1, doc => doc.nested._foo = 'x') }, /Map entries starting with underscore are not allowed/)
-        assert.throws(() => { Automerge.change(s1, doc => doc.nested = {_foo: 'x'}) }, /Map entries starting with underscore are not allowed/)
+        assert.throws(
+          () => { Automerge.change(s1, doc => doc.nested = {_foo: 'x'}) }, /Map entries starting with underscore are not allowed/
+        )
       })
     })
 

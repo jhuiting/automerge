@@ -1,5 +1,5 @@
-import { Map, List, Set, fromJS } from 'immutable';
-import * as uuid from "uuid/v4";
+import { List, fromJS } from 'immutable'
+import * as uuid from 'uuid'
 const transit = require('transit-immutable-js')
 
 import { rootObjectProxy } from './proxies'
@@ -13,7 +13,7 @@ function isObject(obj) {
 
 function makeOp(state, opProps) {
   const opSet = state.get('opSet'), actor = state.get('actorId'), op = fromJS(opProps)
-  let [opSet2, diff] = OpSet.addLocalOp(opSet, op, actor)
+  let [opSet2] = OpSet.addLocalOp(opSet, op, actor)
   return state.set('opSet', opSet2)
 }
 
@@ -29,7 +29,7 @@ function insertAfter(state, listId, elemId) {
 
 function createNestedObjects(state, value) {
   if (typeof value._objectId === 'string') return [state, value._objectId]
-  const objectId = uuid()
+  const objectId = uuid.v4()
 
   if (value instanceof Text) {
     state = makeOp(state, { action: 'makeText', obj: objectId })
@@ -60,7 +60,7 @@ function setField(state, objectId, key, value) {
     throw new TypeError('Map entries starting with underscore are not allowed: ' + key)
   }
 
-  if (typeof value === 'undefined') {
+  if (typeof value === undefined) {
     return deleteField(state, objectId, key)
   } else if (isObject(value)) {
     const [newState, newId] = createNestedObjects(state, value)
@@ -125,7 +125,7 @@ function makeChange(root, newState, message) {
 ///// Automerge.* API
 
 function init(actorId?: string) {
-  return FreezeAPI.init(actorId || uuid())
+  return FreezeAPI.init(actorId || uuid.v4())
 }
 
 function checkTarget(funcName, target, needMutable?: boolean) {
@@ -142,7 +142,7 @@ function checkTarget(funcName, target, needMutable?: boolean) {
 }
 
 function parseListIndex(key) {
-  if (typeof key === 'string' && /^[0-9]+$/.test(key)) key = parseInt(key)
+  if (typeof key === 'string' && /^[0-9]+$/.test(key)) key = parseInt(key, 10)
   if (typeof key !== 'number')
     throw new TypeError('A list index must be a number, but you passed ' + JSON.stringify(key))
   if (key < 0 || isNaN(key) || key === Infinity || key === -Infinity)
@@ -182,8 +182,8 @@ function assign(target, values) {
   target._change.state = state
 }
 
-function load(string, actorId) {
-  return FreezeAPI.applyChanges(FreezeAPI.init(actorId), transit.fromJSON(string), false)
+function load(jsonString: string, actorId: string) {
+  return FreezeAPI.applyChanges(FreezeAPI.init(actorId), transit.fromJSON(jsonString), false)
 }
 
 function save(doc) {

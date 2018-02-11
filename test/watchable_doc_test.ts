@@ -1,8 +1,7 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 import Automerge from '../src/automerge'
-import { equalsOneOf } from './helpers'
-import WatchableDoc from "../src/watchable_doc"
+import WatchableDoc from '../src/watchable_doc'
 
 describe('Automerge.WatchableDoc', () => {
   let watchDoc, beforeDoc, afterDoc, changes
@@ -13,31 +12,31 @@ describe('Automerge.WatchableDoc', () => {
     changes = Automerge.getChanges(beforeDoc, afterDoc)
     watchDoc = new WatchableDoc(beforeDoc)
   })
-  
+
   it('should have a document inside the docset', () => {
     assert.strictEqual(watchDoc.get(), beforeDoc)
   })
 
   it('should call the handler via set', () => {
-    let callback = sinon.spy();
-    watchDoc.registerHandler(callback);
+    let callback = sinon.spy()
+    watchDoc.registerHandler(callback)
     watchDoc.set(afterDoc)
     assert(callback.calledOnce)
     assert.deepEqual(watchDoc.get(), afterDoc)
   })
 
   it('should call the handler via applyChanges', () => {
-    let callback = sinon.spy();
-    watchDoc.registerHandler(callback);
+    let callback = sinon.spy()
+    watchDoc.registerHandler(callback)
     watchDoc.applyChanges(changes)
     assert(callback.calledOnce)
     assert.deepEqual(watchDoc.get(), afterDoc)
   })
 
   it('should allow removing the handler', () => {
-    let callback = sinon.spy();
-    watchDoc.registerHandler(callback);
-    watchDoc.unregisterHandler(callback);
+    let callback = sinon.spy()
+    watchDoc.registerHandler(callback)
+    watchDoc.unregisterHandler(callback)
     watchDoc.applyChanges(changes)
     assert(callback.notCalled)
   })

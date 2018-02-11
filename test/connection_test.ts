@@ -1,16 +1,16 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 import Automerge from '../src/automerge'
-import Connection from '../src/connection';
-import DocSet from '../src/doc_set';
+import Connection from '../src/connection'
+import DocSet from '../src/doc_set'
 
 describe('Automerge.Connection', () => {
-  var doc1, nodes
+  let doc1, nodes
 
   beforeEach(() => {
     doc1 = Automerge.change(Automerge.init(), doc => doc.doc1 = 'doc1')
     nodes = []
-    for (let i=0; i<5; i++) nodes.push(new DocSet())
+    for (let i = 0; i < 5; i++) nodes.push(new DocSet())
   })
 
   // Mini-DSL for describing the message exchanges between nodes
@@ -252,8 +252,6 @@ describe('Automerge.Connection', () => {
 
   it('should tolerate duplicate message deliveries', () => {
     doc1 = Automerge.change(Automerge.init(), doc => doc.list = [])
-    let doc2 = Automerge.merge(Automerge.init(), doc1)
-    let doc3 = Automerge.merge(Automerge.init(), doc1)
     nodes[1].setDoc('doc1', doc1)
     nodes[2].setDoc('doc1', doc1)
     nodes[3].setDoc('doc1', doc1)

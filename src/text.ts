@@ -1,10 +1,9 @@
-import * as OpSet from './op_set';
-import SkipList from './skip_list';
+import SkipList from './skip_list'
 
 export class Text {
-  objectId: any;
-  opSet: any;
-  
+  objectId: any
+  opSet: any
+
   constructor (opSet?: any, objectId?: string) {
     this.opSet = opSet
     this.objectId = objectId

@@ -14,7 +14,7 @@ describe('Automerge proxy API', () => {
     it('should know its actor ID', () => {
       Automerge.change(Automerge.init(), doc => {
         assert(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(doc._actorId))
-        assert.notEqual(doc._actorId, '00000000-0000-0000-0000-000000000000')
+        assert.notStrictEqual(doc._actorId, '00000000-0000-0000-0000-000000000000')
         assert.strictEqual(Automerge.init('customActorId')._actorId, 'customActorId')
       })
     })

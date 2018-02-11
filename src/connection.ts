@@ -1,7 +1,10 @@
-import { Map, fromJS } from 'immutable';
+import { Map, fromJS } from 'immutable'
 
-import DocSet from "./doc_set";
-import { getMissingChanges } from './op_set';
+import DocSet from './doc_set'
+import { getMissingChanges } from './op_set'
+
+type Message = { docId: string, clock: any, changes?: any }
+type SendMessage = (msg: Message) => any
 
 // Returns true if all components of
 // Returns true if all components of clock1 are less than or equal to those of clock2.
@@ -41,13 +44,13 @@ function clockUnion(clockMap, docId, clock) {
 // ourClock is the most recent VClock that we've advertised to the peer (i.e. where we've
 // told the peer that we have it).
 export default class Connection {
-  private _docSet: any;
-  private _sendMsg: any;
-  private _theirClock
-  private _ourClock
-  private _docChangedHandler
+  private _docSet: DocSet
+  private _sendMsg: SendMessage
+  private _theirClock: Map<any, any>
+  private _ourClock: Map<any, any>
+  private _docChangedHandler: any
 
-  constructor (docSet, sendMsg) {
+  constructor (docSet: DocSet, sendMsg: SendMessage) {
     this._docSet = docSet
     this._sendMsg = sendMsg
     this._theirClock = Map()
@@ -65,13 +68,13 @@ export default class Connection {
   }
 
   sendMsg (docId, clock, changes?: any) {
-    const msg: {docId: string, clock: any, changes?: any} = {docId, clock: clock.toJS()}
+    const msg: Message = {docId, clock: clock.toJS()}
     this._ourClock = clockUnion(this._ourClock, docId, clock)
     if (changes) msg.changes = changes.toJS()
     this._sendMsg(msg)
   }
 
-  maybeSendChanges (docId) {
+  maybeSendChanges (docId: string) {
     const doc = this._docSet.getDoc(docId)
     const clock = doc._state.getIn(['opSet', 'clock'])
 
@@ -88,7 +91,7 @@ export default class Connection {
   }
 
   // Callback that is called by the docSet whenever a document is changed
-  docChanged (docId, doc) {
+  docChanged (docId: string, doc) {
     const clock = doc._state.getIn(['opSet', 'clock'])
     if (!clock) {
       throw new TypeError('This object cannot be used for network sync. ' +
@@ -102,7 +105,7 @@ export default class Connection {
     this.maybeSendChanges(docId)
   }
 
-  receiveMsg (msg) {
+  receiveMsg (msg: Message) {
     if (msg.clock) {
       this._theirClock = clockUnion(this._theirClock, msg.docId, fromJS(msg.clock))
     }
